@@ -46,6 +46,7 @@ body {
 /* Search */
 .search-container {
   position: relative;
+  z-index: 1100;
   margin: 16px 0;
 }
 
@@ -102,6 +103,12 @@ body {
   font-size: 13px;
   color: var(--text-muted);
   margin-top: 2px;
+}
+
+.suggestion-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
 }
 
 .suggestion-empty {

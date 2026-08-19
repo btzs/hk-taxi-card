@@ -378,6 +378,42 @@ function suggestionNames(result) {
   return { zh, en };
 }
 
+function suggestionSubtitle(result) {
+  const addr = result.address || {};
+  const type =
+    result.category === "highway"
+      ? result.type === "pedestrian"
+        ? "Pedestrian street"
+        : "Road"
+      : result.category === "building"
+        ? "Building"
+        : result.type || result.category;
+  const district = {
+    "中西區": "Central and Western District",
+    "灣仔區": "Wan Chai District",
+    "東區": "Eastern District",
+    "南區": "Southern District",
+    "油尖旺區": "Yau Tsim Mong District",
+    "深水埗區": "Sham Shui Po District",
+    "九龍城區": "Kowloon City District",
+    "黃大仙區": "Wong Tai Sin District",
+    "觀塘區": "Kwun Tong District",
+    "葵青區": "Kwai Tsing District",
+    "荃灣區": "Tsuen Wan District",
+    "屯門區": "Tuen Mun District",
+    "元朗區": "Yuen Long District",
+    "北區": "North District",
+    "大埔區": "Tai Po District",
+    "沙田區": "Sha Tin District",
+    "西貢區": "Sai Kung District",
+    "離島區": "Islands District",
+  }[addr.suburb];
+  const suburb = district ? `${addr.suburb} (${district})` : addr.suburb;
+  return [type, addr.house_number, addr.neighbourhood, suburb]
+    .filter(Boolean)
+    .join(" · ");
+}
+
 function renderSuggestions(results) {
   state.suggestions = results;
   state.activeIndex = -1;
@@ -406,8 +442,13 @@ function renderSuggestions(results) {
     en.className = "suggestion-en";
     en.textContent = names.en;
 
+    const subtitle = document.createElement("div");
+    subtitle.className = "suggestion-subtitle";
+    subtitle.textContent = suggestionSubtitle(result);
+
     item.appendChild(zh);
     item.appendChild(en);
+    if (subtitle.textContent) item.appendChild(subtitle);
     item.addEventListener("click", () => selectResult(result));
     el.suggestions.appendChild(item);
   });
