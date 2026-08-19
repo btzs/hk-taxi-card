@@ -17,6 +17,7 @@ const el = {
   streetZh: document.getElementById("streetZh"),
   streetEn: document.getElementById("streetEn"),
   district: document.getElementById("district"),
+  map: document.getElementById("map"),
   cardLoading: document.getElementById("cardLoading"),
   status: document.getElementById("status"),
   favoriteBtn: document.getElementById("favoriteBtn"),
@@ -32,6 +33,9 @@ const el = {
   fullStreetEn: document.getElementById("fullStreetEn"),
   fullDistrict: document.getElementById("fullDistrict"),
 };
+
+let map;
+let mapMarker;
 
 // ---------- Nominatim plumbing ----------
 
@@ -292,9 +296,28 @@ function renderAddress(loc) {
   el.fullDistrict.hidden = !district;
 }
 
+function showMap(loc) {
+  if (!window.L || !Number.isFinite(loc.lat) || !Number.isFinite(loc.lon)) return;
+
+  const position = [loc.lat, loc.lon];
+  el.map.hidden = false;
+  if (!map) {
+    map = L.map(el.map, { zoomControl: false, scrollWheelZoom: false }).setView(position, 17);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors",
+    }).addTo(map);
+    mapMarker = L.marker(position).addTo(map);
+  } else {
+    map.setView(position, 17);
+    mapMarker.setLatLng(position);
+  }
+  requestAnimationFrame(() => map.invalidateSize());
+}
+
 function showAddress(loc) {
   state.current = loc;
   renderAddress(loc);
+  showMap(loc);
   el.cardLoading.hidden = true;
   el.favoriteBtn.disabled = false;
   el.copyBtn.disabled = false;
@@ -304,6 +327,7 @@ function showAddress(loc) {
 
 function clearAddress() {
   state.current = null;
+  el.map.hidden = true;
   for (const field of [
     el.nameZh,
     el.nameEn,

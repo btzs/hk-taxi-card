@@ -138,6 +138,15 @@ body {
   animation: spin 0.8s linear infinite;
 }
 
+.map {
+  height: 180px;
+  margin: 0 0 16px;
+  border-radius: 12px;
+  overflow: hidden;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -353,7 +362,7 @@ body {
   position: fixed;
   inset: 0;
   background: var(--card-bg);
-  z-index: 100;
+  z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
