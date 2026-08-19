@@ -254,7 +254,7 @@ function setStatus(msg, isError) {
   el.status.className = "status" + (isError ? " error" : "");
 }
 
-function renderAddress(loc) {
+function displayAddress(loc) {
   const nameZh = loc.nameZh || loc.roadZh || "Unknown";
   const nameEn = loc.nameEn || loc.roadEn || "";
   const streetZh = formatStreetZh(loc);
@@ -264,18 +264,23 @@ function renderAddress(loc) {
   const showStreetEn = streetEn && streetEn !== nameEn ? streetEn : "";
   const district =
     [loc.suburbZh, loc.suburbEn].filter(Boolean).join(" · ");
+  return { nameZh, nameEn, streetZh: showStreetZh, streetEn: showStreetEn, district };
+}
+
+function renderAddress(loc) {
+  const { nameZh, nameEn, streetZh, streetEn, district } = displayAddress(loc);
 
   el.nameZh.textContent = nameZh;
   el.nameEn.textContent = nameEn;
-  el.streetZh.textContent = showStreetZh;
-  el.streetEn.textContent = showStreetEn;
+  el.streetZh.textContent = streetZh;
+  el.streetEn.textContent = streetEn;
   el.district.textContent = district;
   el.district.hidden = !district;
 
   el.fullNameZh.textContent = nameZh;
   el.fullNameEn.textContent = nameEn;
-  el.fullStreetZh.textContent = showStreetZh;
-  el.fullStreetEn.textContent = showStreetEn;
+  el.fullStreetZh.textContent = streetZh;
+  el.fullStreetEn.textContent = streetEn;
   el.fullDistrict.textContent = district;
   el.fullDistrict.hidden = !district;
 }
@@ -451,12 +456,13 @@ function addFavorite() {
 
 async function copyAddress() {
   if (!state.current) return;
-  const loc = state.current;
+  const display = displayAddress(state.current);
   const text = [
-    loc.nameZh,
-    loc.nameEn,
-    formatStreetZh(loc),
-    formatStreetEn(loc),
+    display.nameZh,
+    display.nameEn,
+    display.streetZh,
+    display.streetEn,
+    display.district,
   ]
     .filter(Boolean)
     .join("\n");
