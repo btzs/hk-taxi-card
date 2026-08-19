@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#c0392b" />
+  <title>Taxi Card</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚕</text></svg>" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <h1>Taxi Card</h1>
+      <p class="subtitle">Show this to your taxi driver</p>
+    </header>
+
+    <section class="search-container">
+      <input
+        type="text"
+        id="searchInput"
+        class="search-input"
+        placeholder="Search location (English or Chinese)"
+        autocomplete="off"
+        enterkeyhint="search"
+      />
+      <div id="suggestions" class="suggestions" hidden></div>
+    </section>
+
+    <section class="card" id="card" aria-live="polite">
+      <div class="card-main">
+        <div id="nameZh" class="name-zh">Search for a place</div>
+        <div id="nameEn" class="name-en"></div>
+        <div id="streetZh" class="street-zh"></div>
+        <div id="streetEn" class="street-en"></div>
+        <div id="district" class="district"></div>
+      </div>
+      <div id="status" class="status"></div>
+      <div class="card-hint">Tap to enlarge</div>
+    </section>
+
+    <section class="actions">
+      <button id="favoriteBtn" class="btn btn-secondary" disabled>
+        <span class="btn-icon">☆</span> Save
+      </button>
+      <button id="copyBtn" class="btn btn-secondary" disabled>
+        <span class="btn-icon">⧉</span> Copy
+      </button>
+      <button id="shareBtn" class="btn btn-secondary" disabled>
+        <span class="btn-icon">↗</span> Share
+      </button>
+    </section>
+
+    <section class="favorites" id="favoritesSection" hidden>
+      <h2>Favorites</h2>
+      <ul id="favoritesList" class="favorites-list"></ul>
+    </section>
+
+    <details class="support">
+      <summary>Support map services</summary>
+      <div class="support-panel">
+        <p>This app uses OpenStreetMap data, Nominatim search, and Overpass API.</p>
+        <a
+          class="support-link"
+          href="https://supporting.openstreetmap.org/"
+          target="_blank"
+          rel="noopener"
+        >Donate to OpenStreetMap</a>
+        <a
+          class="support-link"
+          href="https://www.fossgis.de/aktivit%C3%A4ten/langzeitf%C3%B6rderungen/overpass/"
+          target="_blank"
+          rel="noopener"
+        >Support Overpass API</a>
+      </div>
+    </details>
+  </main>
+
+  <div id="fullscreen" class="fullscreen" hidden>
+    <button id="fullscreenClose" class="fullscreen-close" aria-label="Close">×</button>
+    <div class="fullscreen-content">
+      <div id="fullNameZh" class="fullscreen-name-zh"></div>
+      <div id="fullNameEn" class="fullscreen-name-en"></div>
+      <div id="fullStreetZh" class="fullscreen-street-zh"></div>
+      <div id="fullStreetEn" class="fullscreen-street-en"></div>
+      <div id="fullDistrict" class="fullscreen-district"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
