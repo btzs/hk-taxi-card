@@ -17,6 +17,7 @@ const el = {
   streetZh: document.getElementById("streetZh"),
   streetEn: document.getElementById("streetEn"),
   district: document.getElementById("district"),
+  cardLoading: document.getElementById("cardLoading"),
   status: document.getElementById("status"),
   favoriteBtn: document.getElementById("favoriteBtn"),
   copyBtn: document.getElementById("copyBtn"),
@@ -120,6 +121,7 @@ function parseZh(result) {
     nameZh: name,
     nameEn: nd["name:en"] || "",
     roadZh: addr.road || "",
+    roadEn: result.category === "highway" ? nd["name:en"] || "" : "",
     houseNumber: addr.house_number || "",
     suburbZh:
       addr.suburb || addr.quarter || addr.neighbourhood || addr.city || "",
@@ -159,7 +161,7 @@ function buildAddress(zh, en) {
     nameZh: zh.nameZh,
     nameEn: en.nameEn || zh.nameEn,
     roadZh: zh.roadZh,
-    roadEn: en.roadEn,
+    roadEn: en.roadEn || zh.roadEn,
     houseNumber: zh.houseNumber || en.houseNumber,
     suburbZh: zh.suburbZh,
     suburbEn: en.suburbEn,
@@ -188,9 +190,14 @@ async function search(query, signal) {
   return nominatim(searchUrl(query, "zh"), signal);
 }
 
-// Fetch the English-language version of a Chinese search result.
+// Enrich a Chinese search result with English and raw OSM address tags.
 async function enrichResult(zhResult) {
   const zh = parseZh(zhResult);
+  // Road results already contain the street name; avoid an unnecessary
+  // Overpass request that can fail or delay displaying the address.
+  if (zhResult.category === "highway" && zh.osmType === "way" && zh.roadZh) {
+    return buildAddress(zh, { nameEn: zh.nameEn, roadEn: zh.roadEn });
+  }
   // Nominatim omits addr:street for some objects (e.g. landuse areas),
   // so pull the raw tags from Overpass for reliable street + number.
   const tags = await overpassTags(zh.osmType, zh.osmId);
@@ -288,10 +295,34 @@ function renderAddress(loc) {
 function showAddress(loc) {
   state.current = loc;
   renderAddress(loc);
+  el.cardLoading.hidden = true;
   el.favoriteBtn.disabled = false;
   el.copyBtn.disabled = false;
   el.shareBtn.disabled = false;
   setStatus("");
+}
+
+function clearAddress() {
+  state.current = null;
+  for (const field of [
+    el.nameZh,
+    el.nameEn,
+    el.streetZh,
+    el.streetEn,
+    el.fullNameZh,
+    el.fullNameEn,
+    el.fullStreetZh,
+    el.fullStreetEn,
+    el.fullDistrict,
+  ]) {
+    field.textContent = "";
+  }
+  el.district.textContent = "";
+  el.district.hidden = true;
+  el.fullDistrict.hidden = true;
+  el.favoriteBtn.disabled = true;
+  el.copyBtn.disabled = true;
+  el.shareBtn.disabled = true;
 }
 
 // ---------- Search suggestions ----------
@@ -376,11 +407,14 @@ async function runSearch(query) {
 
 async function selectResult(result) {
   clearSuggestions();
+  clearAddress();
+  el.cardLoading.hidden = false;
   setStatus("Loading address…");
   try {
     const loc = await enrichResult(result);
     showAddress(loc);
   } catch {
+    el.cardLoading.hidden = true;
     setStatus("Could not load address", true);
   }
 }
